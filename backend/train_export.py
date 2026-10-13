@@ -59,8 +59,24 @@ stats = {"total": len(X), "at_risk_actual": int(y.sum()), "at_risk_rate": float(
         "risk_distribution": {"labels": ["0-20%", "20-40%", "40-60%", "60-80%", "80-100%"], "counts": hist},
         "risk_by_failures": {str(k): float(v) for k, v in y.groupby(raw["failures"]).mean().items()}}
 
-joblib.dump({"model": model, "norms": norms, "name": best, "explainer": expl}, "model.joblib")
-for name, obj in [("metrics", metrics), ("importance", importance), ("students", students), ("stats", stats)]:
-    json.dump(obj, open(f"{OUT}{name}.json", "w"), indent=1)
-print("Best:", best, {k: round(v, 3) for k, v in metrics[best].items() if isinstance(v, float)})
+joblib.dump(
+    {"model": model, "norms": norms, "name": best, "explainer": expl},
+    BASE_DIR / "model.joblib"
+)
+OUT.mkdir(parents=True, exist_ok=True)
+
+for name, obj in [
+    ("metrics", metrics),
+    ("importance", importance),
+    ("students", students),
+    ("stats", stats),
+]:
+    with (OUT / f"{name}.json").open("w", encoding="utf-8") as f:
+        json.dump(obj, f, indent=2)
+
+print("Best:", best, {
+    k: round(v, 3)
+    for k, v in metrics[best].items()
+    if isinstance(v, float)
+})
 print("Rows:", len(X), "at-risk rate:", round(float(y.mean()), 3))
