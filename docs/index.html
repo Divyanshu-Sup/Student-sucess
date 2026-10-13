@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Success System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<header class="top">
+  <h1>Student Success System</h1>
+  <nav><a href="#overview">Overview</a><a href="#students">At-risk students</a><a href="#predict">Predict</a><a href="#model">Model</a></nav>
+</header>
+<main>
+  <section id="overview">
+    <h2>Cohort overview</h2>
+    <div class="stats" id="stats"></div>
+    <div class="grid2">
+      <div class="panel"><h3>How risk scores are spread</h3><div class="chart"><canvas id="distChart"></canvas></div></div>
+      <div class="panel"><h3>Share at risk by past failures</h3><div class="chart"><canvas id="failChart"></canvas></div></div>
+    </div>
+  </section>
+
+  <section id="students">
+    <h2>Students by risk</h2>
+    <div class="tools">
+      <input id="search" type="search" placeholder="Search by student ID" aria-label="Search by student ID">
+      <select id="filter" aria-label="Filter">
+        <option value="risk">At risk only (50%+)</option><option value="all">All students</option>
+      </select>
+    </div>
+    <div class="scroll"><table id="tbl"><thead><tr>
+      <th>Student</th><th>Risk</th><th>G1</th><th>G2</th><th>Failures</th><th>Absences</th><th>Main driver</th>
+    </tr></thead><tbody></tbody></table></div>
+    <p class="note" id="count"></p>
+  </section>
+
+  <section id="predict">
+    <h2>Check a student</h2>
+    <div class="grid2 predict">
+      <form id="form" class="panel">
+        <div class="fields">
+          <label>Period 1 grade (0–20)<input name="G1" type="number" min="0" max="20" value="10" required></label>
+          <label>Period 2 grade (0–20)<input name="G2" type="number" min="0" max="20" value="9" required></label>
+          <label>Weekly study time
+            <select name="studytime"><option value="1">Under 2 hours</option><option value="2" selected>2–5 hours</option><option value="3">5–10 hours</option><option value="4">Over 10 hours</option></select></label>
+          <label>Past class failures (0–4)<input name="failures" type="number" min="0" max="4" value="0" required></label>
+          <label>Absences<input name="absences" type="number" min="0" max="100" value="4" required></label>
+          <label>Extra school support<select name="schoolsup"><option value="no">No</option><option value="yes">Yes</option></select></label>
+          <label>Family support<select name="famsup"><option value="yes">Yes</option><option value="no">No</option></select></label>
+        </div>
+        <button type="submit" id="go">Predict risk</button>
+      </form>
+      <div class="panel result" id="result" aria-live="polite">
+        <p class="empty">Enter a student's details and select <b>Predict risk</b> to see their score and the reasons behind it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="model">
+    <h2>Model performance</h2>
+    <p class="note" id="best"></p>
+    <div class="grid2">
+      <div class="panel"><h3>Random Forest vs XGBoost</h3><div class="chart"><canvas id="cmpChart"></canvas></div></div>
+      <div class="panel"><h3>Confusion matrix (best model, test set)</h3><div id="cm"></div></div>
+    </div>
+    <div class="panel"><h3>What drives risk (average SHAP impact)</h3><div class="chart tall"><canvas id="impChart"></canvas></div>
+      <p class="note">Longer bars mean the feature moves the model's prediction more. Several features are derived from the same grade and attendance columns, so they overlap.</p></div>
+  </section>
+</main>
+<footer>Built from the Student Performance dataset (student-mat.csv). Risk means a predicted final grade G3 below 10.</footer>
+<script src="app.js"></script>
+</body>
+</html>
