@@ -45,7 +45,7 @@ importance = {"model_importance": [{"feature": k, "value": float(v)} for k, v in
 prob = model.predict_proba(X)[:, 1]
 students = []
 for i, idx in enumerate(X.index):
-    top = int(np.argmax(sv[i]))
+    top = int(np.argmax(np.abs(sv[i])))
     students.append({"id": f"STU{idx+1:04d}", "risk": round(float(prob[i]) * 100, 1), "at_risk": int(prob[i] >= .5),
                     "G1": int(raw.loc[idx, "G1"]), "G2": int(raw.loc[idx, "G2"]), "G3": int(raw.loc[idx, "G3"]),
                     "failures": int(raw.loc[idx, "failures"]), "absences": int(raw.loc[idx, "absences"]),
