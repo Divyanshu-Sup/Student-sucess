@@ -1,4 +1,4 @@
-const API_URL = "https://divyanshu-sup.github.io/Student-sucess/";
+const API_URL = "https://student-sucess.onrender.com";
 
 const NAMES = {attendance_rate:"Attendance", avg_quiz_score:"Period 1 score", assignment_attempts:"Study time band",
   time_spent_minutes:"Study minutes", prev_term_gpa:"Previous GPA", topic_algebra_score:"Algebra score",
