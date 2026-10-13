@@ -1,5 +1,5 @@
 import json, joblib, numpy as np, pandas as pd, shap
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_predict
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix, precision_score, recall_score, f1_score
 from xgboost import XGBClassifier
@@ -35,6 +35,9 @@ model = models[best]
 metrics["best_model"] = best
 metrics["test_size"] = int(len(yte))
 
+# Refit the selected model on all available rows for the deployed prediction API.
+model.fit(X, y)
+
 expl = shap.TreeExplainer(model)
 sv = np.asarray(shap_positive(expl.shap_values(X)))
 imp = pd.Series(model.feature_importances_, index=MODEL_COLS).sort_values(ascending=False)
@@ -42,7 +45,10 @@ importance = {"model_importance": [{"feature": k, "value": float(v)} for k, v in
                     "shap_mean_abs": [{"feature": k, "value": float(v)} for k, v in
                                 pd.Series(np.abs(sv).mean(0), index=MODEL_COLS).sort_values(ascending=False).items()]}
 
-prob = model.predict_proba(X)[:, 1]
+# Use out-of-fold probabilities for dashboard scores so each row is scored by a model
+# that did not train on that row. Keep test-set metrics above as the evaluation result.
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+prob = cross_val_predict(model, X, y, cv=cv, method="predict_proba")[:, 1]
 students = []
 for i, idx in enumerate(X.index):
     top = int(np.argmax(np.abs(sv[i])))
