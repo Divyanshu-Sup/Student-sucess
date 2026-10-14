@@ -45,7 +45,7 @@ function renderTable() {
     <td><span class="bar"><i style="width:${s.risk}%;background:${color(s.risk)}"></i></span><b class="${tone(s.risk)}">${s.risk}%</b></td>
     <td>${s.G1}</td><td>${s.G2}</td><td>${s.failures}</td><td>${s.absences}</td><td>${NAMES[s.top_factor] || s.top_factor}</td></tr>`).join("")
     || `<tr><td colspan="7">No students match. Clear the search or switch the filter to All students.</td></tr>`;
-  $("#count").textContent = `Showing ${Math.min(rows.length, 200)} of ${rows.length} students. Scores come from the model applied to every student, including the ones it was trained on.`;
+  $("#count").textContent = `Showing ${rows.length} of ${students.length} students. Scores come from the model applied to every student, including the ones it was trained on.`;
 }
 $("#search").addEventListener("input", renderTable);
 $("#filter").addEventListener("change", renderTable);
