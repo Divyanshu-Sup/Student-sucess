@@ -41,7 +41,7 @@ function renderStats(s) {
 function renderTable() {
   const q = $("#search").value.trim().toUpperCase(), onlyRisk = $("#filter").value === "risk";
   const rows = students.filter(s => (!onlyRisk || s.risk >= 50) && s.id.includes(q));
-  $("#tbl tbody").innerHTML = rows.slice(0, 200).map(s => `<tr><td>${s.id}</td>
+  $("#tbl tbody").innerHTML = rows.map(s => `<tr><td>${s.id}</td>
     <td><span class="bar"><i style="width:${s.risk}%;background:${color(s.risk)}"></i></span><b class="${tone(s.risk)}">${s.risk}%</b></td>
     <td>${s.G1}</td><td>${s.G2}</td><td>${s.failures}</td><td>${s.absences}</td><td>${NAMES[s.top_factor] || s.top_factor}</td></tr>`).join("")
     || `<tr><td colspan="7">No students match. Clear the search or switch the filter to All students.</td></tr>`;
