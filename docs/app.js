@@ -85,6 +85,7 @@ $("#form").addEventListener("submit", async e => {
 });
 
 function showResult(r) {
+  lastPrediction = r;
   const p = r.risk_percent, c = color(p), arc = 251 * p / 100;
   const max = Math.max(...r.factors.map(f => Math.abs(f.impact)), 1e-6);
   $("#result").innerHTML = `<div class="gauge">
