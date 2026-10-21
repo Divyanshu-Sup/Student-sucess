@@ -99,4 +99,60 @@ function showResult(r) {
       <span>${f.impact > 0 ? "+" : ""}${f.impact.toFixed(2)}</span></div>`).join("")}
     <p class="note">Red bars push the risk up; teal bars push it down. Model: ${r.model}.</p>`;
 }
+
+const assistantForm = document.querySelector("#assistantForm");
+const assistantInput = document.querySelector("#assistantInput");
+const assistantMessages = document.querySelector("#assistantMessages");
+const assistantSend = document.querySelector("#assistantSend");
+
+function addAssistantMessage(text, kind) {
+  const node = document.createElement("div");
+  node.className = "assistant-message " + kind;
+  node.textContent = text;
+  assistantMessages.appendChild(node);
+  assistantMessages.scrollTop = assistantMessages.scrollHeight;
+  return node;
+}
+
+assistantForm.addEventListener("submit", async function (event) {
+  event.preventDefault();
+  const message = assistantInput.value.trim();
+  if (!message) return;
+  addAssistantMessage(message, "user");
+  assistantInput.value = "";
+  assistantInput.disabled = true;
+  assistantSend.disabled = true;
+  assistantSend.textContent = "Thinking...";
+  const pending = addAssistantMessage("Thinking...", "assistant pending");
+  const requestBody = { role: document.querySelector("#assistantRole").value, message: message };
+  if (lastPrediction) {
+    requestBody.student_context = {
+      risk_percent: lastPrediction.risk_percent,
+      at_risk: lastPrediction.at_risk,
+      model: lastPrediction.model,
+      factors: lastPrediction.factors
+    };
+  }
+  try {
+    const response = await fetch(API_URL + "/assistant/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody)
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "Assistant request failed.");
+    pending.textContent = data.reply || "No response was returned.";
+    pending.classList.remove("pending");
+  } catch (error) {
+    pending.textContent = "Could not reach Helping AI: " + error.message;
+    pending.classList.add("error");
+    pending.classList.remove("pending");
+  } finally {
+    assistantInput.disabled = false;
+    assistantSend.disabled = false;
+    assistantSend.textContent = "Send message";
+    assistantInput.focus();
+  }
+});
+
 init();
