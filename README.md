@@ -61,3 +61,15 @@ Alternatives: Hugging Face Spaces, Railway or PythonAnywhere. Any host that runs
 \n6. The frontend sends the most recent prediction and its SHAP factors as optional context. Without a prediction, Helping AI answers general study questions.
 \n\n**Security limitation:** the student/teacher/admin selector is only a demo mode. It does not authenticate anyone. Do not expose actual student records or cohort information until login, server-side role authorization, and per-student access controls are implemented. Current teacher/admin mode can only answer general questions based on the request context; it does not yet retrieve a real cohort from the database.
 \n
+## 4. Configure Helping AI (demo version)
+
+The Helping AI chat calls the OpenAI API from the FastAPI backend. Never place an API key in `docs/app.js` or commit it to GitHub.
+
+1. Install the updated backend dependencies: `pip install -r requirements.txt`.
+2. Copy `.env.example` to `.env` inside `backend/` and set `OPENAI_API_KEY` to your API key. Keep `.env` private.
+3. Optionally set `OPENAI_MODEL` to a model available to your API project.
+4. Start the API with `uvicorn main:app --reload` from `backend/`. Open `http://localhost:8000/docs` and test `POST /assistant/chat`.
+5. Set `OPENAI_API_KEY` and `OPENAI_MODEL` as environment variables on your backend host too. Redeploy the backend after updating requirements.
+6. The frontend sends the most recent prediction and SHAP factors as optional context. Without a prediction, Helping AI answers general study questions.
+
+**Security limitation:** the student/teacher/admin selector is a demo convenience, not authentication. Do not use real student records until login, server-side role authorization, and per-student access controls are implemented. Teacher/admin mode currently answers from the submitted request only; it does not retrieve a real student cohort.
