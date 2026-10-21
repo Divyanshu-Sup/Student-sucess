@@ -495,3 +495,111 @@ hr {
 .assistant-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.75rem;align-items:end}
 .assistant-form textarea{resize:vertical;min-height:54px}
 @media(max-width:650px){.assistant-form{grid-template-columns:1fr}.assistant-message{max-width:100%}}
+
+
+/* White + leaf-green visual refresh (no decorative leaf imagery) */
+:root {
+  color-scheme: light;
+  --ink: #15251c;
+  --muted: #647368;
+  --paper: #f4f8f4;
+  --card: #ffffff;
+  --line: #dce8dd;
+  --safe: #239653;
+  --risk: #e85d70;
+  --warn: #d99a22;
+  --accent: #238747;
+  --accent-hover: #176b35;
+  --r: 16px;
+}
+body {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(58, 148, 82, .075), transparent 32rem),
+    radial-gradient(circle at 100% 18%, rgba(146, 198, 151, .10), transparent 30rem),
+    repeating-linear-gradient(0deg, rgba(36, 104, 55, .012) 0, rgba(36, 104, 55, .012) 1px, transparent 1px, transparent 4px),
+    var(--paper);
+  color: var(--ink);
+}
+::selection { background: rgba(35, 135, 71, .2); color: #102c19; }
+.top {
+  margin: .65rem auto 0;
+  width: min(1440px, calc(100% - 2rem));
+  padding: .9rem clamp(1rem, 3vw, 2rem);
+  border: 1px solid rgba(220, 232, 221, .9);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .92);
+  box-shadow: 0 8px 28px rgba(29, 71, 39, .08);
+}
+h1 { color: #102d1b; font-weight: 750; }
+nav a { color: #53665a; }
+nav a:hover, nav a:focus-visible { color: var(--accent); }
+main { max-width: 1440px; padding-top: 1rem; }
+section { padding-top: 1.4rem; scroll-margin-top: 90px; }
+h2 { color: #172b20; font-size: clamp(1.35rem, 2vw, 1.55rem); }
+h3 { color: #1e3426; }
+.stat, .panel {
+  background: rgba(255,255,255,.96);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: 0 5px 18px rgba(28, 74, 39, .055);
+}
+.stat { position: relative; overflow: hidden; }
+.stat::after {
+  content: "";
+  position: absolute;
+  width: 90px; height: 34px;
+  right: -12px; bottom: -17px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(74, 174, 101, .02), rgba(74, 174, 101, .16));
+  pointer-events: none;
+}
+.stat b { color: #13251a; }
+.stat span, .empty, .note { color: var(--muted); }
+.grid2 { gap: 1rem; }
+.panel { padding: 1.15rem; }
+input, select, textarea {
+  color: #203128;
+  background: #fff;
+  border-color: #d4e0d6;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 2px rgba(20, 50, 27, .025);
+}
+input::placeholder, textarea::placeholder { color: #87958a; }
+input:hover, select:hover, textarea:hover { border-color: #8bbd96; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+  outline-color: #319957;
+  box-shadow: 0 0 0 4px rgba(49, 153, 87, .13);
+}
+.scroll { background: #fff; border-color: var(--line); }
+th { background: #e5f3e7; color: #23452d; border-bottom-color: #d1e6d4; }
+tbody tr { border-bottom-color: #e8eee8; }
+tbody tr:hover { background: rgba(61, 153, 83, .055); }
+.bar { background: #e4eee5; }
+.bar i { background: linear-gradient(90deg, #1e8a49, #72c982); }
+.hi { color: #d84e63; }
+.md { color: #b87a10; }
+.lo { color: #21854a; }
+label { color: #46594b; }
+button {
+  border-color: #218344;
+  background: linear-gradient(110deg, #278c49, #18763a);
+  box-shadow: 0 5px 14px rgba(32, 126, 62, .16);
+}
+button:hover:not(:disabled) {
+  filter: brightness(1.04);
+  box-shadow: 0 7px 20px rgba(32, 126, 62, .22);
+}
+.badge { background: var(--accent); }
+.gauge .pct { color: var(--accent); }
+.factor .t { background: #e4eee5; }
+.factor .t i { background: linear-gradient(90deg, #238747, #79c989); }
+#cm div.c { background: #edf7ee; border-color: #d7e9d9; color: #1d6133; }
+.assistant-messages { background: #f6faf6; border-color: var(--line); }
+.assistant-message.assistant { background: #eaf4eb; border-color: #d5e7d7; color: #203629; }
+.assistant-message.user { background: #dff2e3; border-color: #b5dcbc; color: #174629; }
+.assistant-message.error { border-color: #e85d70; }
+hr { border-top-color: var(--line); }
+@media (max-width: 760px) {
+  .top { width: calc(100% - 1rem); margin-top: .5rem; border-radius: 13px; }
+  main { padding-left: .8rem; padding-right: .8rem; }
+}
