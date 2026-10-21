@@ -9,6 +9,7 @@ const $ = s => document.querySelector(s);
 const tone = r => r >= 70 ? "hi" : r >= 40 ? "md" : "lo";
 const color = r => r >= 70 ? css("--risk") : r >= 40 ? css("--warn") : css("--safe");
 let students = [];
+let lastPrediction = null;
 Chart.defaults.font.family = "Instrument Sans, system-ui, sans-serif";
 Chart.defaults.color = css("--muted");
 
