@@ -52,24 +52,24 @@ Alternatives: Hugging Face Spaces, Railway or PythonAnywhere. Any host that runs
 - Student risk scores include students the model trained on, so treat them as illustrative, not as a fair test. The performance metrics use only the held-out 25%.
 
 \n## 4. Configure Helping AI (demo version)
-\nThe Helping AI chat uses the OpenAI API from the FastAPI backend. The API key must never be placed in `docs/app.js` or committed to GitHub.
+\nThe Helping AI chat uses the Gemini API from the FastAPI backend. The API key must never be placed in `docs/app.js` or committed to GitHub.
 \n1. Install the updated backend requirements: `pip install -r requirements.txt`.
-\n2. Copy `.env.example` to `.env` inside `backend/` and set `OPENAI_API_KEY` to your own key. Keep `.env` private.
-\n3. Optionally set `OPENAI_MODEL` to a model available to your API project.
+\n2. Copy `.env.example` to `.env` inside `backend/` and set `GEMINI_API_KEY` to your own key. Keep `.env` private.
+\n3. Optionally set `GEMINI_MODEL` to a Gemini model available to your API project.
 \n4. Start the API with `uvicorn main:app --reload` from `backend/`. Open `http://localhost:8000/docs` and test `POST /assistant/chat`.
-\n5. Configure `OPENAI_API_KEY` and `OPENAI_MODEL` as environment variables on your backend host as well. Redeploy the backend after changing requirements.
+\n5. Configure `GEMINI_API_KEY` and `GEMINI_MODEL` as environment variables on your backend host as well. Redeploy the backend after changing requirements.
 \n6. The frontend sends the most recent prediction and its SHAP factors as optional context. Without a prediction, Helping AI answers general study questions.
 \n\n**Security limitation:** the student/teacher/admin selector is only a demo mode. It does not authenticate anyone. Do not expose actual student records or cohort information until login, server-side role authorization, and per-student access controls are implemented. Current teacher/admin mode can only answer general questions based on the request context; it does not yet retrieve a real cohort from the database.
 \n
 ## 4. Configure Helping AI (demo version)
 
-The Helping AI chat calls the OpenAI API from the FastAPI backend. Never place an API key in `docs/app.js` or commit it to GitHub.
+The Helping AI chat calls Google's Gemini API from the FastAPI backend. Never place an API key in `docs/app.js` or commit it to GitHub.
 
 1. Install the updated backend dependencies: `pip install -r requirements.txt`.
-2. Copy `.env.example` to `.env` inside `backend/` and set `OPENAI_API_KEY` to your API key. Keep `.env` private.
-3. Optionally set `OPENAI_MODEL` to a model available to your API project.
+2. Copy `.env.example` to `.env` inside `backend/` and set `GEMINI_API_KEY` to your API key. Keep `.env` private.
+3. Optionally set `GEMINI_MODEL` to a model available to your API project.
 4. Start the API with `uvicorn main:app --reload` from `backend/`. Open `http://localhost:8000/docs` and test `POST /assistant/chat`.
-5. Set `OPENAI_API_KEY` and `OPENAI_MODEL` as environment variables on your backend host too. Redeploy the backend after updating requirements.
+5. Set `GEMINI_API_KEY` and `GEMINI_MODEL` as environment variables on your backend host too. Redeploy the backend after updating requirements.
 6. The frontend sends the most recent prediction and SHAP factors as optional context. Without a prediction, Helping AI answers general study questions.
 
 **Security limitation:** the student/teacher/admin selector is a demo convenience, not authentication. Do not use real student records until login, server-side role authorization, and per-student access controls are implemented. Teacher/admin mode currently answers from the submitted request only; it does not retrieve a real student cohort.
