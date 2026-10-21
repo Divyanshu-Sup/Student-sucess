@@ -86,7 +86,34 @@
       <p class="note">AI responses can be wrong. Risk scores are estimates, and SHAP factors show model associations—not proven causes. Teacher/admin modes are not secure until authentication is added.</p>
     </div>
   </section>
-\n  <section id="model">
+\n
+  <section id="helping-ai">
+    <h2>Helping AI</h2>
+    <p class="note">Ask for study explanations or practical next steps. Run a prediction first to personalize advice with its risk score and SHAP factors.</p>
+    <div class="panel assistant-panel">
+      <div class="assistant-controls">
+        <label for="assistantRole">Assistant mode
+          <select id="assistantRole">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher (demo only)</option>
+            <option value="admin">Admin (demo only)</option>
+          </select>
+        </label>
+        <span class="note">Do not enter names or other sensitive information.</span>
+      </div>
+      <div id="assistantMessages" class="assistant-messages" role="log" aria-live="polite" aria-relevant="additions">
+        <div class="assistant-message assistant">Hi! I'm Helping AI. I can explain a topic, help build a study plan, or suggest next steps from the latest prediction on this page.</div>
+      </div>
+      <form id="assistantForm" class="assistant-form">
+        <label class="sr-only" for="assistantInput">Your question</label>
+        <textarea id="assistantInput" rows="2" maxlength="2000" placeholder="e.g. Make me a 7-day study plan to improve my grades." required></textarea>
+        <button type="submit" id="assistantSend">Send message</button>
+      </form>
+      <p class="note">AI responses can be wrong. Risk scores are estimates, and SHAP factors show model associations—not proven causes. Teacher/admin modes are not secure until authentication is added.</p>
+    </div>
+  </section>
+
+  <section id="model">
     <h2>Model performance</h2>
     <p class="note" id="best"></p>
     <div class="grid2">
