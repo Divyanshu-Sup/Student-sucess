@@ -1,52 +1,89 @@
 # AI-Based Student Success System
 
-Dashboard + risk predictor built from `student success.ipynb`.
+Dashboard and student-risk predictor built from the Student Performance dataset.
+
+## Project structure
 
 ```
-student-success/
-├── docs/                  <- FRONTEND (this folder is what GitHub Pages serves)
-│   ├── index.html, style.css, app.js
-│   └── data/              <- stats, students, metrics, importance (JSON made by train_export.py)
-└── backend/               <- PYTHON API (needed only for the live "Check a student" form)
-    ├── pipeline.py        <- your notebook's preprocessing, shared by training and the API
-    ├── train_export.py    <- trains RF + XGBoost like the notebook, writes model.joblib and docs/data/*.json
-    ├── main.py            <- FastAPI: GET /health, POST /predict
-    ├── requirements.txt
-    └── data/student-mat.csv
+docs/                  # Static frontend served by GitHub Pages
+  index.html
+  style.css
+  app.js
+  data/                # Dashboard JSON data
+backend/               # FastAPI prediction and Helping AI APIs
+  main.py
+  ai_assistant.py      # Gemini-powered study assistant
+  pipeline.py
+  train_export.py
+  requirements.txt
+  .env.example
+  data/student-mat.csv
 ```
 
-Dashboard, tables and charts read static JSON, so they work on GitHub Pages alone.
-Only the prediction form needs the backend.
+The dashboard's tables and charts read static JSON and can run on GitHub Pages. The live prediction form and Helping AI chat require the backend.
 
-## 1. Run it on your computer
+## 1. Run locally
+
+From the repository root:
+
 ```bash
 cd backend
 pip install -r requirements.txt
-python train_export.py          # only needed if you change the data or model
-uvicorn main:app --reload       # API at http://localhost:8000  (docs at /docs)
+# Optional: retrain and regenerate the model/data if needed
+python train_export.py
+uvicorn main:app --reload
 ```
-In a second terminal: `cd docs && python -m http.server 5500`, then open http://localhost:5500
 
-## 2. Deploy the frontend (GitHub Pages)
-1. Create a GitHub repository and upload this whole project (or `git push` it).
-2. Repo **Settings → Pages**. Under *Build and deployment*, choose **Deploy from a branch**, branch `main`, folder **/docs**, then Save.
-3. After about a minute your site is live at `https://YOUR-USERNAME.github.io/YOUR-REPO/`.
+In a second terminal, serve the frontend:
 
-## 3. Deploy the backend (Render, free tier)
-1. Sign in at render.com with GitHub, then **New → Web Service**, and pick your repo.
-2. Fill in:
-   - **Root Directory:** `backend`
-   - **Build Command:** `pip install -r requirements.txt && python train_export.py`
-   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-   - **Environment variable:** `PYTHON_VERSION` = `3.12.3`
-   - Instance type: Free
-3. Deploy. You'll get a URL like `https://student-api.onrender.com`. Check `/health` in your browser.
-4. Open `docs/app.js` and change line 2 to `const API_URL = "https://student-api.onrender.com";`, then commit and push. GitHub Pages updates itself.
+```bash
+cd docs
+python -m http.server 5500
+```
 
-Free Render services sleep when idle, so the first prediction can take 30-60 seconds. Open the `/health` URL a minute before a demo.
-Alternatives: Hugging Face Spaces, Railway or PythonAnywhere. Any host that runs `uvicorn main:app` works.
+Open `http://localhost:5500`. The default frontend API URL is configured in `docs/app.js`; for local use, set it to `http://127.0.0.1:8000`.
 
-## Things to know for viewers
-- The form takes **raw dataset columns** (G1, G2, study time, failures, absences, support). The backend applies the notebook's mapping into proxy features such as attendance and topic scores. These are proxies, not real measurements, as your notebook notes.
-- Risk is **G3 < 10**. G2 is a very strong signal of G3, which is why accuracy is high (~91%, ROC-AUC ~0.98). Say this in your demo.
-- Student risk scores include students the model trained on, so treat them as illustrative, not as a fair test. The performance metrics use only the held-out 25%.
+## 2. Configure Helping AI with Gemini
+
+Helping AI uses Google's Gemini API through the FastAPI backend. **Never put the Gemini API key in frontend JavaScript or commit it to GitHub.**
+
+1. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com/apikey).
+2. In the `backend` folder, copy `.env.example` to `.env`.
+3. Set your key in `backend/.env`:
+   ```dotenv
+   GEMINI_API_KEY=your_actual_api_key
+   GEMINI_MODEL=gemini-2.5-flash
+   ```
+4. Install dependencies with `pip install -r requirements.txt`.
+5. Start the API from `backend` using `uvicorn main:app --reload`.
+6. Visit `http://127.0.0.1:8000/docs` and test `POST /assistant/chat`.
+
+For deployment, set `GEMINI_API_KEY` and optionally `GEMINI_MODEL` in the backend host's environment-variable settings, then redeploy. Do not upload your local `.env` file.
+
+The chat can answer general study questions. After a prediction is made, the frontend also sends its risk score and SHAP factors as optional context to help personalize study suggestions. Without a prediction, the assistant has no student-specific context.
+
+## 3. Deploy the frontend on GitHub Pages
+
+1. Push the project to GitHub.
+2. Open **Settings → Pages**.
+3. Choose **Deploy from a branch**, select `main` and the `/docs` folder, then save.
+4. Set `API_URL` in `docs/app.js` to your deployed backend URL.
+
+## 4. Deploy the backend on Render
+
+1. Create a new Web Service and select this repository.
+2. Set **Root Directory** to `backend`.
+3. Use build command: `pip install -r requirements.txt && python train_export.py`.
+4. Use start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`.
+5. Add `GEMINI_API_KEY` and optionally `GEMINI_MODEL` in the service's environment settings.
+6. Deploy and check the `/health` endpoint. Make sure `API_URL` in `docs/app.js` points to this service.
+
+Free hosting may sleep while idle, so the first request can take longer while the backend starts.
+
+## Important limitations
+
+- Risk is defined as a predicted final grade `G3 < 10` on a 0–20 scale. A prediction is an estimate, not a certainty.
+- Some dashboard features are derived proxies, not direct measurements.
+- Cohort risk scores may include students used during model training; treat them as illustrative. Reported model metrics are computed on the held-out test split.
+- Student/teacher/admin selection in Helping AI is a demo mode, **not authentication**. Teacher/admin responses use only the submitted question and optional context; they do not query a real student database. Do not use sensitive real student records until login, server-side authorization, and access controls are implemented.
+- AI responses may be inaccurate. SHAP factors describe model associations, not proven causes.

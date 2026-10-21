@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from pipeline import prepare, add_engagement, shap_positive, MODEL_COLS
 from pathlib import Path
+from ai_assistant import AssistantChatRequest, generate_assistant_reply
 
 BASE_DIR = Path(__file__).resolve().parent
 art = joblib.load(BASE_DIR / "model.joblib")
@@ -11,6 +12,7 @@ model, norms, explainer = art["model"], art["norms"], art["explainer"]
 
 app = FastAPI(title="Student Success API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 
 class Student(BaseModel):
     G1: int = Field(ge=0, le=20)          # period 1 grade
@@ -35,3 +37,14 @@ def predict(s: Student):
     factors = sorted(({"feature": f, "impact": float(v), "value": float(X[f].iloc[0])}
     for f, v in zip(MODEL_COLS, sv)), key=lambda d: -abs(d["impact"]))[:6]
     return {"risk_percent": round(p * 100, 1), "at_risk": p >= 0.5, "model": art["name"], "factors": factors}
+
+
+@app.post("/assistant/chat")
+def assistant_chat(request: AssistantChatRequest):
+    """Return AI study guidance using only the context supplied with this request.
+
+    NOTE: role is a demo selector, not authentication. Add verified identities and
+    server-side authorization before enabling real student/teacher accounts.
+    """
+    reply = generate_assistant_reply(request)
+    return {"reply": reply, "role": request.role}

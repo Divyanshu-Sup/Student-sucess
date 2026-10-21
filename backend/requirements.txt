@@ -6,3 +6,5 @@ shap
 pandas
 numpy
 joblib
+python-dotenv
+google-genai
