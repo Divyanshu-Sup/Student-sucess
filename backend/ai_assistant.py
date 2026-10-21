@@ -1,8 +1,3 @@
-"""Gemini-powered study assistant for the Student Success System.
-
-Demo only: role selection is not authentication. Do not use real student records
-until authenticated identities and server-side authorization are implemented.
-"""
 import json
 import os
 from typing import Literal
@@ -124,7 +119,6 @@ def generate_assistant_reply(request: AssistantChatRequest) -> str:
     except HTTPException:
         raise
     except errors.APIError:
-        # Do not expose provider response details or secrets to the browser.
         raise HTTPException(
             status_code=502,
             detail="Gemini could not complete the request. Check the backend logs, API key, model, and quota.",
