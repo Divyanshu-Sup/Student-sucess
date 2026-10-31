@@ -1,4 +1,18 @@
+# Python artifacts
 __pycache__/
-*.pyc\n.env\nbackend/.env\n
+*.py[cod]
+.venv/
+venv/
+
+# Secrets and local configuration
 .env
+.env.*
+!.env.example
 backend/.env
+
+# Local/editor files
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+.vscode/
