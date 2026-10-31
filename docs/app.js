@@ -108,6 +108,18 @@ const assistantReset = document.querySelector("#assistantReset");
 const assistantConversation = [];
 const MAX_LOCAL_HISTORY = 10;
 
+if (assistantReset) {
+  assistantReset.addEventListener("click", () => {
+    assistantConversation.length = 0;
+    assistantMessages.replaceChildren();
+    addAssistantMessage("Hi! I'm Helping AI. I can explain a topic, help build a study plan, or suggest next steps from the latest prediction on this page.", "assistant");
+    assistantInput.focus();
+  });
+}
+const assistantReset = document.querySelector("#assistantReset");
+const assistantConversation = [];
+const MAX_LOCAL_HISTORY = 10;
+
 function addAssistantMessage(text, kind) {
   const node = document.createElement("div");
   node.className = "assistant-message " + kind;
