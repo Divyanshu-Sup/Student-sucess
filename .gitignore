@@ -1,12 +1,8 @@
-# Python
+# Python artifacts
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-.Python
 .venv/
 venv/
-env/
 
 # Secrets and local configuration
 .env
@@ -14,7 +10,7 @@ env/
 !.env.example
 backend/.env
 
-# Build and editor files
+# Local/editor files
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
