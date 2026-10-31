@@ -104,6 +104,9 @@ const assistantForm = document.querySelector("#assistantForm");
 const assistantInput = document.querySelector("#assistantInput");
 const assistantMessages = document.querySelector("#assistantMessages");
 const assistantSend = document.querySelector("#assistantSend");
+const assistantReset = document.querySelector("#assistantReset");
+const assistantConversation = [];
+const MAX_LOCAL_HISTORY = 10;
 
 function addAssistantMessage(text, kind) {
   const node = document.createElement("div");
@@ -114,17 +117,35 @@ function addAssistantMessage(text, kind) {
   return node;
 }
 
+function resetAssistantConversation() {
+  assistantConversation.length = 0;
+  assistantMessages.replaceChildren();
+  addAssistantMessage(
+    "Hi! I'm Helping AI. I can explain a topic, help build a study plan, or suggest next steps from the latest prediction on this page.",
+    "assistant"
+  );
+  assistantInput.focus();
+}
+
+if (assistantReset) assistantReset.addEventListener("click", resetAssistantConversation);
+
 assistantForm.addEventListener("submit", async function (event) {
   event.preventDefault();
   const message = assistantInput.value.trim();
-  if (!message) return;
+  if (!message || assistantSend.disabled) return;
+
   addAssistantMessage(message, "user");
   assistantInput.value = "";
   assistantInput.disabled = true;
   assistantSend.disabled = true;
-  assistantSend.textContent = "Thinking...";
-  const pending = addAssistantMessage("Thinking...", "assistant pending");
-  const requestBody = { role: document.querySelector("#assistantRole").value, message: message };
+  assistantSend.textContent = "Thinking…";
+  const pending = addAssistantMessage("Thinking…", "assistant pending");
+
+  const requestBody = {
+    role: document.querySelector("#assistantRole").value,
+    message,
+    history: assistantConversation.slice(-MAX_LOCAL_HISTORY)
+  };
   if (lastPrediction) {
     requestBody.student_context = {
       risk_percent: lastPrediction.risk_percent,
@@ -133,16 +154,31 @@ assistantForm.addEventListener("submit", async function (event) {
       factors: lastPrediction.factors
     };
   }
+
   try {
     const response = await fetch(API_URL + "/assistant/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody)
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "Assistant request failed.");
-    pending.textContent = data.reply || "No response was returned.";
+    let data = {};
+    try { data = await response.json(); } catch (_) { /* non-JSON server response */ }
+    if (!response.ok) {
+      const detail = data.detail || (response.status === 429
+        ? "Too many requests. Wait a moment and try again."
+        : "The assistant service returned an error (" + response.status + ").");
+      throw new Error(detail);
+    }
+    const answer = (data.reply || "").trim() || "No response was returned. Please try again.";
+    pending.textContent = answer;
     pending.classList.remove("pending");
+    assistantConversation.push(
+      { role: "user", content: message },
+      { role: "assistant", content: answer }
+    );
+    if (assistantConversation.length > MAX_LOCAL_HISTORY) {
+      assistantConversation.splice(0, assistantConversation.length - MAX_LOCAL_HISTORY);
+    }
   } catch (error) {
     pending.textContent = "Could not reach Helping AI: " + error.message;
     pending.classList.add("error");
