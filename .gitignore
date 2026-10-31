@@ -1,4 +1,22 @@
+# Python
 __pycache__/
-*.pyc\n.env\nbackend/.env\n
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+
+# Secrets and local configuration
 .env
+.env.*
+!.env.example
 backend/.env
+
+# Build and editor files
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+.vscode/
