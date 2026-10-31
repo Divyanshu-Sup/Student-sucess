@@ -10,7 +10,7 @@ const tone = r => r >= 70 ? "hi" : r >= 40 ? "md" : "lo";
 const color = r => r >= 70 ? css("--risk") : r >= 40 ? css("--warn") : css("--safe");
 let students = [];
 let lastPrediction = null;
-// Charts are optional: a blocked/unavailable CDN must not break the dashboard.
+
 if (window.Chart) {
   Chart.defaults.font.family = "Instrument Sans, system-ui, sans-serif";
   Chart.defaults.color = css("--muted");
