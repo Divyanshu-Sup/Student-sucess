@@ -107,7 +107,7 @@ def generate_assistant_reply(request: AssistantChatRequest) -> str:
     try:
         client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=30000))
         response = client.models.generate_content(
-            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
             contents=json.dumps(payload, ensure_ascii=False),
             config=types.GenerateContentConfig(
                 system_instruction=_instructions(request.role),
