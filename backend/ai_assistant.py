@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import Literal
 
@@ -9,6 +10,8 @@ from google.genai import errors, types
 from pydantic import BaseModel, Field
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 class SHAPFactor(BaseModel):
@@ -118,12 +121,15 @@ def generate_assistant_reply(request: AssistantChatRequest) -> str:
         return answer
     except HTTPException:
         raise
-    except errors.APIError:
+    except errors.APIError as exc:
+        # Keep provider diagnostics in Render logs without exposing the API key.
+        logger.error("Gemini API error (code=%s): %s", getattr(exc, "code", "unknown"), getattr(exc, "message", str(exc)))
         raise HTTPException(
             status_code=502,
             detail="Gemini could not complete the request. Check the backend logs, API key, model, and quota.",
         ) from None
     except Exception:
+        logger.exception("Unexpected Helping AI backend error")
         raise HTTPException(
             status_code=502,
             detail="The AI service could not complete the request. Check backend logs and configuration.",
