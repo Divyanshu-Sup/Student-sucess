@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import time
 from typing import Literal
 
 from dotenv import load_dotenv
@@ -105,16 +106,37 @@ def generate_assistant_reply(request: AssistantChatRequest) -> str:
     }
 
     try:
-        client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=30000))
-        response = client.models.generate_content(
-            model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
-            contents=json.dumps(payload, ensure_ascii=False),
-            config=types.GenerateContentConfig(
-                system_instruction=_instructions(request.role),
-                max_output_tokens=700,
-                temperature=0.4,
-            ),
-        )
+        # Gemini can return transient 503/504 errors during demand spikes.
+        # Allow up to 60 seconds per attempt and retry once for those errors.
+        client = genai.Client(api_key=api_key, http_options=types.HttpOptions(timeout=60000))
+        response = None
+        for attempt in range(2):
+            try:
+                response = client.models.generate_content(
+                    model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+                    contents=json.dumps(payload, ensure_ascii=False),
+                    config=types.GenerateContentConfig(
+                        system_instruction=_instructions(request.role),
+                        max_output_tokens=700,
+                        temperature=0.4,
+                    ),
+                )
+                break
+            except errors.APIError as exc:
+                code = getattr(exc, "code", None)
+                logger.error(
+                    "Gemini API error (code=%s, attempt=%s): %s",
+                    code, attempt + 1, getattr(exc, "message", str(exc))
+                )
+                if attempt == 0 and code in (503, 504, 429):
+                    time.sleep(2)
+                    continue
+                if code in (503, 504, 429):
+                    raise HTTPException(
+                        status_code=503,
+                        detail="Gemini is temporarily busy or slow. Please wait a moment and try again.",
+                    ) from None
+                raise
         answer = (response.text or "").strip()
         if not answer:
             raise HTTPException(status_code=502, detail="Helping AI returned an empty response.")
@@ -122,8 +144,11 @@ def generate_assistant_reply(request: AssistantChatRequest) -> str:
     except HTTPException:
         raise
     except errors.APIError as exc:
-        # Keep provider diagnostics in Render logs without exposing the API key.
-        logger.error("Gemini API error (code=%s): %s", getattr(exc, "code", "unknown"), getattr(exc, "message", str(exc)))
+        logger.error(
+            "Gemini API error (code=%s): %s",
+            getattr(exc, "code", "unknown"),
+            getattr(exc, "message", str(exc)),
+        )
         raise HTTPException(
             status_code=502,
             detail="Gemini could not complete the request. Check the backend logs, API key, model, and quota.",
