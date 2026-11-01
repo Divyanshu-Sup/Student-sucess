@@ -131,6 +131,23 @@ def generate_assistant_reply(request: AssistantChatRequest) -> str:
                 if attempt == 0 and code in (503, 504, 429):
                     time.sleep(2)
                     continue
+                if code in (503, 504):
+                    # Try a smaller, high-throughput stable model if the primary
+                    # model remains overloaded or times out.
+                    fallback_model = os.getenv("GEMINI_FALLBACK_MODEL", "gemini-3.5-flash-lite")
+                    primary_model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+                    if fallback_model and fallback_model != primary_model:
+                        logger.warning("Primary Gemini model unavailable; trying fallback model %s", fallback_model)
+                        response = client.models.generate_content(
+                            model=fallback_model,
+                            contents=json.dumps(payload, ensure_ascii=False),
+                            config=types.GenerateContentConfig(
+                                system_instruction=_instructions(request.role),
+                                max_output_tokens=700,
+                                temperature=0.4,
+                            ),
+                        )
+                        break
                 if code in (503, 504, 429):
                     raise HTTPException(
                         status_code=503,
